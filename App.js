@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Button, StyleSheet, View, Platform, SafeAreaView } from 'react-native';
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 const data = [
@@ -17,11 +18,31 @@ export default class App extends Component {
 
   state = { index: 0, showNewQuoteScreen: false, quotes: data };
 
+  _storeData(quotes) {
+    AsyncStorage.setItem('QUOTES', JSON.stringify(quotes));
+  }
+
+  _retrieveData = async () => {
+    /*     AsyncStorage.getItem('QUOTES').then(value => {
+          if (value !== null) {
+            value = JSON.parse(value)
+            this.setState({ quotes: value });
+          }
+        }); */
+
+    let value = await AsyncStorage.getItem('QUOTES');
+    if (value !== null) {
+      value = JSON.parse(value)
+      this.setState({ quotes: value });
+    }
+  };
+
   _addQuote = (text, author) => {
 
     let { quotes } = this.state;
     if (text && author) {
       quotes.push({ text, author });
+      this._storeData(quotes);
     }
 
 
@@ -29,6 +50,10 @@ export default class App extends Component {
     this.setState({ showNewQuoteScreen: false, quotes });
 
   };
+
+  componentDidMount() {
+    this._retrieveData();
+  }
 
   render() {
     let { index, quotes } = this.state;
@@ -61,7 +86,11 @@ export default class App extends Component {
     );
   }
 
+
+
 }
+
+
 
 
 const styles = StyleSheet.create({
