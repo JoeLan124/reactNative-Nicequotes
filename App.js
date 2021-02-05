@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { Button, StyleSheet, View, Platform, SafeAreaView } from 'react-native';
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
 
@@ -37,7 +37,7 @@ export default class App extends Component {
     if (nextIndex === quotes.length) nextIndex = 0;
 
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.buttonNew}>
           <Button
             title="Neu"
@@ -57,7 +57,7 @@ export default class App extends Component {
             title="Nächstes Zitat"
             onPress={() => this.setState({ index: nextIndex })} />
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
 
   buttonNext: {
     position: 'absolute',
-    bottom: 30
+    bottom: Platform.OS === 'ios' ? 20 : 30,
   },
 
   buttonNew: {
