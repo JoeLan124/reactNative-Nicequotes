@@ -44,12 +44,15 @@ export default class App extends Component {
       quotes.push({ text, author });
       this._storeData(quotes);
     }
-
-
-
     this.setState({ showNewQuoteScreen: false, quotes });
-
   };
+
+  _displayNextQuote() {
+    let { index, quotes } = this.state;
+    let nextIndex = index + 1;
+    if (nextIndex === quotes.length) nextIndex = 0;
+    this.setState({ index: nextIndex });
+  }
 
   componentDidMount() {
     this._retrieveData();
@@ -58,8 +61,7 @@ export default class App extends Component {
   render() {
     let { index, quotes } = this.state;
     const quote = quotes[index];
-    let nextIndex = index + 1;
-    if (nextIndex === quotes.length) nextIndex = 0;
+
 
     return (
       <SafeAreaView style={styles.container}>
@@ -73,7 +75,7 @@ export default class App extends Component {
         <StyledButton
           style={styles.buttonNext}
           title="Nächstes Zitat"
-          onPress={() => this.setState({ index: nextIndex })}
+          onPress={() => this._displayNextQuote()}
         />
 
         <NewQuote
