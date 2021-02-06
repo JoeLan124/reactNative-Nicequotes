@@ -63,12 +63,18 @@ export default class App extends Component {
 
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.buttonNew}>
-          <Button
-            title="Neu"
-            onPress={() => this.setState({ showNewQuoteScreen: true })}
-          />
-        </View>
+
+        <StyledButton
+          style={styles.buttonNew}
+          title="Neu"
+          onPress={() => this.setState({ showNewQuoteScreen: true })}
+        />
+
+        <StyledButton
+          style={styles.buttonNext}
+          title="Nächstes Zitat"
+          onPress={() => this.setState({ index: nextIndex })}
+        />
 
         <NewQuote
           visible={this.state.showNewQuoteScreen}
@@ -77,21 +83,23 @@ export default class App extends Component {
 
         <Quote text={quote.text} author={quote.author} />
 
-        <View style={styles.buttonNext}>
-          <Button
-            title="Nächstes Zitat"
-            onPress={() => this.setState({ index: nextIndex })} />
-        </View>
       </SafeAreaView>
     );
   }
 
 
-
 }
 
-
-
+function StyledButton(props) {
+  return (
+    <View style={props.style}>
+      <Button
+        title={props.title}
+        onPress={props.onPress}
+      />
+    </View>
+  )
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -104,13 +112,13 @@ const styles = StyleSheet.create({
 
   buttonNext: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 20 : 30,
+    bottom: Platform.OS === 'ios' ? 20 : 30
   },
 
   buttonNew: {
     position: 'absolute',
     right: 30,
-    top: 50,
+    top: 50
   }
 
 }
