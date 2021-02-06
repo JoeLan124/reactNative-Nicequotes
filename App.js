@@ -1,22 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
-import { Button, StyleSheet, View, Platform, SafeAreaView } from 'react-native';
+import { Button, StyleSheet, View, Platform, SafeAreaView, Text } from 'react-native';
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
 import AsyncStorage from '@react-native-community/async-storage';
 
 
-const data = [
 
-  { text: "Zitat 1 jhgjhghgjhgjhgjhghj", author: "Author1" },
-  { text: "Zitat 2 sdjhfkshsdfkjhsdfkj", author: "Author2" },
-  { text: "Zitat 3 skdjhfkjhshdfkjshkj", author: "Author3" },
-
-];
 
 export default class App extends Component {
 
-  state = { index: 0, showNewQuoteScreen: false, quotes: data };
+  state = { index: 0, showNewQuoteScreen: false, quotes: [] };
 
   _storeData(quotes) {
     AsyncStorage.setItem('QUOTES', JSON.stringify(quotes));
@@ -44,8 +38,14 @@ export default class App extends Component {
       quotes.push({ text, author });
       this._storeData(quotes);
     }
-    this.setState({ showNewQuoteScreen: false, quotes });
+    this.setState({ index: quotes.length - 1, showNewQuoteScreen: false, quotes });
   };
+  _deleteQuote() {
+    let { index, quotes } = this.state;
+    quotes.splice(index, 1);
+    this._storeData(quotes);
+    this.setState({ index: 0, quotes });
+  }
 
   _displayNextQuote() {
     let { index, quotes } = this.state;
@@ -61,10 +61,13 @@ export default class App extends Component {
   render() {
     let { index, quotes } = this.state;
     const quote = quotes[index];
+    let content = <Text style={{ fontSize: 36 }}>Keine Zitate</Text>;
 
-
+    if (quote) {
+      content = <Quote text={quote.text} author={quote.author} />;
+    }
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} >
 
         <StyledButton
           style={styles.buttonNew}
@@ -78,13 +81,17 @@ export default class App extends Component {
           onPress={() => this._displayNextQuote()}
         />
 
+        <StyledButton
+          style={styles.buttonDelete}
+          title="Löschen"
+          onPress={() => this._deleteQuote()}
+        />
+
         <NewQuote
           visible={this.state.showNewQuoteScreen}
           onSave={this._addQuote}
         />
-
-        <Quote text={quote.text} author={quote.author} />
-
+        { content}
       </SafeAreaView>
     );
   }
@@ -120,6 +127,11 @@ const styles = StyleSheet.create({
   buttonNew: {
     position: 'absolute',
     right: 30,
+    top: 50
+  },
+  buttonDelete: {
+    position: 'absolute',
+    left: 30,
     top: 50
   }
 
