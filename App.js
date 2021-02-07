@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
-import { Button, StyleSheet, View, Platform, SafeAreaView, Text } from 'react-native';
+import { Alert, Button, StyleSheet, View, Platform, SafeAreaView, Text } from 'react-native';
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -40,6 +40,13 @@ export default class App extends Component {
     }
     this.setState({ index: quotes.length - 1, showNewQuoteScreen: false, quotes });
   };
+  _deleteButton() {
+    Alert.alert('Zitat löschen', 'Soll das Zitat gelöscht werden?', [
+      { text: 'Abbrechen', style: 'cancel' },
+      { text: 'Löschen', style: 'destructive', onPress: () => this._deleteQuote() }
+    ]);
+  }
+
   _deleteQuote() {
     let { index, quotes } = this.state;
     quotes.splice(index, 1);
@@ -89,7 +96,7 @@ export default class App extends Component {
           visible={quotes.length >= 1}
 
           title="Löschen"
-          onPress={() => this._deleteQuote()}
+          onPress={() => this._deleteButton()}
         />
 
         <NewQuote
