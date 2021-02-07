@@ -29,8 +29,8 @@ export default class NewQuote extends Component {
                         onChangeText={text => this.setState({ content: text })}
 
                     />
-                    <Text>{this.state.content}</Text>
-                    <Text>{this.state.author}</Text>
+                    {/*   <Text>{this.state.content}</Text>
+                    <Text>{this.state.author}</Text> */}
 
                     <TextInput
                         style={styles.input}

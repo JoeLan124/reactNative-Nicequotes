@@ -71,18 +71,23 @@ export default class App extends Component {
 
         <StyledButton
           style={styles.buttonNew}
+          visible={true}
           title="Neu"
           onPress={() => this.setState({ showNewQuoteScreen: true })}
         />
 
         <StyledButton
           style={styles.buttonNext}
+          visible={quotes.length >= 2}
+
           title="Nächstes Zitat"
           onPress={() => this._displayNextQuote()}
         />
 
         <StyledButton
           style={styles.buttonDelete}
+          visible={quotes.length >= 1}
+
           title="Löschen"
           onPress={() => this._deleteQuote()}
         />
@@ -100,15 +105,18 @@ export default class App extends Component {
 }
 
 function StyledButton(props) {
-  return (
-    <View style={props.style}>
-      <Button
-        title={props.title}
-        onPress={props.onPress}
-      />
-    </View>
-  )
-};
+  let button = null;
+  if (props.visible)
+    button = (
+      <View style={props.style}>
+        <Button
+          title={props.title}
+          onPress={props.onPress}
+        />
+      </View>
+    );
+  return button;
+}
 
 const styles = StyleSheet.create({
   container: {
