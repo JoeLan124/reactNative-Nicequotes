@@ -1,42 +1,57 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
 import { Alert, Button, StyleSheet, View, Platform, SafeAreaView, Text } from 'react-native';
+import * as SQLite from 'expo-sqlite';
+
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
-import AsyncStorage from '@react-native-community/async-storage';
 
-
-
+const database = SQLite.openDatabase('quotes.db');
 
 export default class App extends Component {
 
   state = { index: 0, showNewQuoteScreen: false, quotes: [] };
 
-  _storeData(quotes) {
-    AsyncStorage.setItem('QUOTES', JSON.stringify(quotes));
+
+
+
+  _retrieveData() {
+    database.transaction((transaction) =>
+      transaction.executeSql(
+        'SELECT * FROM quotes',
+        [],
+        (_, result) => this.setState({ quotes: result.rows._array })
+      )
+    );
   }
 
-  _retrieveData = async () => {
-    /*     AsyncStorage.getItem('QUOTES').then(value => {
-          if (value !== null) {
-            value = JSON.parse(value)
-            this.setState({ quotes: value });
-          }
-        }); */
+  _saveQuotetoDB(text, author, quotes) {
+    database.transaction((transaction) =>
+      transaction.executeSql(
+        'INSERT INTO quotes (text,author) VALUES (?,?)',
+        [text, author],
+        (_, result) =>
+          (quotes[quotes.length - 1].id = result.insertId)
+      )
+    );
 
-    let value = await AsyncStorage.getItem('QUOTES');
-    if (value !== null) {
-      value = JSON.parse(value)
-      this.setState({ quotes: value });
-    }
-  };
+  }
+
+  _removeQuoteFromDB(id) {
+    database.transaction(transaction =>
+      transaction.executeSql('DELETE FROM quotes WHERE id = ?', [id])
+    );
+  }
+
+
 
   _addQuote = (text, author) => {
-
+    // neues Zitat in die Datenbank eintragen
     let { quotes } = this.state;
     if (text && author) {
       quotes.push({ text, author });
-      this._storeData(quotes);
+      this._saveQuotetoDB(text, author, quotes);
+
     }
     this.setState({ index: quotes.length - 1, showNewQuoteScreen: false, quotes });
   };
@@ -48,9 +63,10 @@ export default class App extends Component {
   }
 
   _deleteQuote() {
+    // TOTO: Zitat aus der Datenbank löschen
     let { index, quotes } = this.state;
+    this._removeQuoteFromDB(quotes[index].id);
     quotes.splice(index, 1);
-    this._storeData(quotes);
     this.setState({ index: 0, quotes });
   }
 
@@ -62,6 +78,10 @@ export default class App extends Component {
   }
 
   componentDidMount() {
+    database.transaction(
+      (transaction) => transaction.executeSql('CREATE TABLE IF NOT EXISTS quotes(id INTEGER PRIMARY KEY NOT NULL, text Text, author TEXT)'
+      )
+    );
     this._retrieveData();
   }
 
