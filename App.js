@@ -1,46 +1,43 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
 import { Alert, Button, StyleSheet, View, Platform, SafeAreaView, Text } from 'react-native';
-import * as SQLite from 'expo-sqlite';
 
+// TODO firebase import
+import Firebase from './JS/Firebase';
 import Quote from './JS/components/Quote';
 import NewQuote from './JS/components/NewQuote';
 
-const database = SQLite.openDatabase('quotes.db');
 
 export default class App extends Component {
 
   state = { index: 0, showNewQuoteScreen: false, quotes: [] };
 
-
-
-
-  _retrieveData() {
-    database.transaction((transaction) =>
-      transaction.executeSql(
-        'SELECT * FROM quotes',
-        [],
-        (_, result) => this.setState({ quotes: result.rows._array })
-      )
-    );
+  _retrieveData = async () => {
+    // TODO Daten aus firebase laden
+    let quotes = [];
+    let query = await Firebase.db.collection('quotes').get();
+    query.forEach(quote => {
+      quotes.push({
+        id: quote.id,
+        text: quote.data().text,
+        author: quote.data().author
+      });
+    });
+    this.setState({ quotes });
   }
 
-  _saveQuotetoDB(text, author, quotes) {
-    database.transaction((transaction) =>
-      transaction.executeSql(
-        'INSERT INTO quotes (text,author) VALUES (?,?)',
-        [text, author],
-        (_, result) =>
-          (quotes[quotes.length - 1].id = result.insertId)
-      )
-    );
-
+  _saveQuotetoDB = async (text, author, quotes) => {
+    // TODO Daten in Firebase speichern
+    docRef = await Firebase.db.collection('quotes').add({ text, author });
+    quotes[quotes.length - 1].id = docRef.id;
   }
 
   _removeQuoteFromDB(id) {
-    database.transaction(transaction =>
-      transaction.executeSql('DELETE FROM quotes WHERE id = ?', [id])
-    );
+    // TODO Daten in Firebase löschen
+    Firebase.db
+      .collection('quotes')
+      .doc(id)
+      .delete();
   }
 
 
@@ -78,10 +75,8 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    database.transaction(
-      (transaction) => transaction.executeSql('CREATE TABLE IF NOT EXISTS quotes(id INTEGER PRIMARY KEY NOT NULL, text Text, author TEXT)'
-      )
-    );
+    // TODO firebase initialisieren
+    Firebase.init();
     this._retrieveData();
   }
 
